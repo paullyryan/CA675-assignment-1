@@ -1,0 +1,70 @@
+/* PART 1 */
+/* EXTRACT THE TOP 50K POSTS FROM STACK EXCHANGE. FILE SIZE LIMIT OF 50K POSTS PER DOWNLOAD */
+/* ORDERING QUERY BY ID AND VIEW COUNT TO CREATE A SEQUENCE AND REMOVE POTENTIAL OF DUPLICATION AT A LATER STAGE */
+
+SELECT TOP 50000 *
+
+FROM posts
+
+where posts.ViewCount > 20000
+
+ORDER BY posts.ViewCount DESC, posts.id ASC
+;
+
+/* PART 2 */
+
+SELECT TOP 50000 *
+
+FROM posts
+
+where posts.ViewCount > 20000
+
+and posts.id NOT IN
+
+(
+  SELECT TOP 50000 posts.id
+
+  FROM posts
+
+  ORDER BY posts.ViewCount DESC, posts.id ASC
+)
+
+ORDER BY posts.ViewCount DESC, posts.id ASC
+;
+
+SELECT TOP 50000 *
+
+FROM posts
+
+where posts.ViewCount > 20000
+
+and posts.id NOT IN
+
+(
+  SELECT TOP 100000 posts.id
+
+  FROM posts
+
+  ORDER BY posts.ViewCount DESC
+)
+
+ORDER BY posts.ViewCount DESC
+;
+
+SELECT TOP 50000 *
+
+FROM posts
+
+where posts.ViewCount > 20000
+
+and posts.id NOT IN
+
+(
+  SELECT TOP 150000 posts.id
+
+  FROM posts
+
+  ORDER BY posts.ViewCount DESC
+)
+
+ORDER BY posts.ViewCount DESC
