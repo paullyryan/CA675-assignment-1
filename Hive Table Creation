@@ -1,0 +1,15 @@
+/* TABLE CREATION TO BE USED TO TAKE MY PIG OUTPUT FROM THE PREVIOUS SECTION */
+
+create external table if not exists top200_posts
+(
+id int
+,score int
+,userId int
+,body string
+)
+ROW FORMAT DELIMITED
+FIELDS TERMINATED BY '|'
+;
+
+/* LOADING MY PIG OUTPUT INTO NEWLY CREATED TABLE TO QUERY FOR QUESTIONS IN PART 3 */
+load data inpath 'hdfs://assignment-1-m/cleaned_data/part-r-00000' overwrite into table top200_posts;
