@@ -1,0 +1,17 @@
+-- SETUP OF WORKING DIRECTORY TO UPLOAD MY 4 csv FILES TO HDFS
+
+hadoop fs -mkdir /top200;
+
+-- UPLOAD MY FILES INTO /top200 WORKING DIRECTORY
+
+hadoop fs -put top50.csv /top200;
+hadoop fs -put top100.csv /top200;
+hadoop fs -put top150.csv /top200;
+hadoop fs -put top200.csv /top200;
+
+-- VIEW FILES PLACED INTO /top200 WORKING DIRECTORY
+
+hadoop fs -cat /top200/test1.csv;
+hadoop fs -cat /top200/test2.csv;
+hadoop fs -cat /top200/test3.csv;
+hadoop fs -cat /top200/test4.csv;
