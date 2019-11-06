@@ -225,3 +225,33 @@ WHERE BODY LIKE '%Hadoop%';
 ```
 
 # Part 4 - TF-IDF
+
+In order to calculate my tf-idf score, I need to gather my dataset. As per above ask, I must perform my TF-IDF analysis on posts made by the top 10 users of the website by score. 
+
+In order to get these users, I'm using Hive again. I will need the userId and body fields. Therefore i'm creating a new table called 'top10_user_posts' which will contain all posts by my top 10 users. 
+
+```
+create external table if not exists top10_user_posts
+(
+userId int
+,body string
+)
+ROW FORMAT DELIMITED
+FIELDS TERMINATED BY '|';
+```
+
+I will insert these posts and user ids into my newly created table by running the below HiveQL INSERT statement. In order to limit to only posts by the top 10 users, I'm using the userIds output from part 3.ii.
+
+```
+INSERT INTO top10_user_posts
+SELECT userId, body
+FROM top200_posts
+WHERE userID IN 
+(87234, 4883, 9951, 6068, 89904, 51816, 49153, 95592, 63051, 39677);    // users identified in part 3.ii
+```
+
+I will now take my results and store them in the HDFS for my next step. Below is the command to store my file in a newly created folder 'top10_user_posts'
+
+```
+INSERT OVERWRITE DIRECTORY '/top10_user_posts' ROW FORMAT DELIMITED FIELDS TERMINATED BY '\t' STORED AS TEXTFILE SELECT * FROM top10_user_posts;
+```
