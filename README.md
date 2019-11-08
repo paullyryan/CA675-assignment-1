@@ -11,6 +11,13 @@
 
 4.  Using Mapreduce calculate the per-user TF-IDF (just submit the top 10 terms for each of the top 10 users from Query 3.
 
+# Cluster Setup
+
+* Cluster Name: assignment-1 
+* Cluster mode: Standard - (1 master, 2 workers) 
+* Machine type - 1 vCPU 3.75 GB memory (minimum)
+* Primary disk size: 15 GB (minimum)
+
 # Part 1 - Data Acquisition
 
 In order to perform the tasks contained in this assignment, we first need to obtain our data from the Stack Exchange Data Explorer site (link below). The site allows you to access all posts made on the website and export your output as a csv. There's a max file size limit of 50,000 posts therefore I will have to perform 4 queries in order to get the top 200,000 posts on the website.
