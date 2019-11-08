@@ -265,7 +265,9 @@ File Name - '8 - number of posts like 'Hadoop''
 
 # Part 4 - TF-IDF
 
-For the next stage, i followed a scriupt and guide on how to perform this task at the below link. It isn't the exact same process. In the guide, it works off 3 text files. I only have 1 file. Equally, my file will be fed from a Hive output whereby the guide seems to have 3 ready-made text files. So I plan on adjusting the code accordingly to fit my task. 
+For the next stage, i followed a scriupt and guide on how to perform this task at the below link. It isn't the exact same process. In the guide, it works off 3 text files. I only have 1 file. Equally, my file will be fed from a Hive output whereby the guide seems to have 3 ready-made text files. So I plan on adjusting the code accordingly to fit my task.
+
+Guide & Code Followed - http://horicky.blogspot.com/2009/01/solving-tf-idf-using-map-reduce.html
 
 In order to do this, I need to gather my dataset. As per above ask, I must perform my TF-IDF analysis on posts made by the top 10 users of the website by score. 
 
