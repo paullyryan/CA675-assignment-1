@@ -86,6 +86,12 @@ ORDER BY posts.ViewCount DESC;
 
 These 4 queries give me the top 200,000 posts on Stack Exchange which I will later use in the Hadoop system. 
 
+Both files and test files (in order to test my code, I pulled the first 10 rows of each of my downloads to test my code and assumptions) are saved in the below folders.
+
+Files - https://github.com/paullyryan/CA675-assignment-1/tree/master/Stack-Exchange-Files
+
+Test Files - https://github.com/paullyryan/CA675-assignment-1/tree/master/Stack-Exchange-Test-Files
+
 # Part 2 - Pig ETL Process
 
 Now that I have my 200,000 posts ready for loading into our cluster, I need to create our working directory where I will load our 4 files. I do so by checking our current directories and creating the new working directory
@@ -143,6 +149,12 @@ In the second stage of my cleansing process, I want to remove any line breaks th
 top200_cleaned_filtered_2 = FOREACH top200_cleaned_filtered_1 GENERATE Id,Score,OwnerUserId,REPLACE(Body, '\n', ' ') AS Body;
 ```
 
+You can see confirmation of each job's completion in the below screenshot.
+
+https://github.com/paullyryan/CA675-assignment-1/tree/master/screenshots
+
+File Name - '4 - Pig Load Scripts Completion'
+
 Finally with our new cleansed and transformed dataset, I store my output into my newly created working directory (/cleaned_data). Again I'm using the CSVExcelStorage function available from the Piggybank class. 
 
 * As a precautionary measure, I'm switching my delimiter to a pipe ('|'). I'm unsure currently of the impact of using a comma delimiter later, particularly as my Body column may still contain commas within the string. 
@@ -185,6 +197,11 @@ Before I go any further, I'm going to run a quick test to verify that my data lo
 SELECT COUNT(*)
 FROM top200_posts;
 ```
+Output of this query can be found below.
+
+https://github.com/paullyryan/CA675-assignment-1/tree/master/screenshots
+
+File Name - '5 - count of top 200k table'
 
 #### top 10 posts by score
 
@@ -196,6 +213,11 @@ FROM top200_posts
 ORDER BY score 
 DESC LIMIT 10;
 ```
+Output of this query can be found below.
+
+https://github.com/paullyryan/CA675-assignment-1/tree/master/screenshots
+
+File Name - '6 - top 10 posts by score'
 
 #### top 10 users by post score
 
@@ -210,6 +232,11 @@ WHERE userId IS NOT NULL
 GROUP BY userId
 ORDER BY totalScore DESC LIMIT 10;
 ```
+Output of this query can be found below.
+
+https://github.com/paullyryan/CA675-assignment-1/tree/master/screenshots
+
+File Name - '7 - top 10 users by score'
 
 #### number of distinct users, who used the word “Hadoop” in one of their posts
 
@@ -223,12 +250,17 @@ SELECT COUNT(DISTINCT userId)
 FROM top200_posts
 WHERE BODY LIKE '%Hadoop%';
 ```
+Output of this query can be found below.
+
+https://github.com/paullyryan/CA675-assignment-1/tree/master/screenshots
+
+File Name - '8 - number of posts like 'Hadoop''
 
 # Part 4 - TF-IDF
 
 For the next stage, i followed a scriupt and guide on how to perform this task at the below link. It isn't the exact same process. In the guide, it works off 3 text files. I only have 1 file. Equally, my file will be fed from a Hive output whereby the guide seems to have 3 ready-made text files. So I plan on adjusting the code accordingly to fit my task. 
 
-In order to do thi, I need to gather my dataset. As per above ask, I must perform my TF-IDF analysis on posts made by the top 10 users of the website by score. 
+In order to do this, I need to gather my dataset. As per above ask, I must perform my TF-IDF analysis on posts made by the top 10 users of the website by score. 
 
 In order to get these users, I'm using Hive again. I will need the userId and body fields. Therefore i'm creating a new table called 'top10_user_posts' which will contain all posts by my top 10 users. 
 
@@ -251,6 +283,11 @@ FROM top200_posts
 WHERE userID IN 
 (87234, 4883, 9951, 6068, 89904, 51816, 49153, 95592, 63051, 39677);    // users identified in part 3.ii
 ```
+You can see a sample of this output below.
+
+https://github.com/paullyryan/CA675-assignment-1/tree/master/screenshots
+
+File Name - '11 Store Top 10 Users Posts Sample Output'
 
 I will now take my results and store them in the HDFS for my next step. Below is the command to store my file in a newly created folder 'top10_user_posts'
 
@@ -258,14 +295,25 @@ I will now take my results and store them in the HDFS for my next step. Below is
 INSERT OVERWRITE DIRECTORY '/top10_user_posts' ROW FORMAT DELIMITED FIELDS TERMINATED BY '\t' STORED AS TEXTFILE SELECT * FROM top10_user_posts;
 ```
 
+Output of this query and sample data can be found below.
+
+https://github.com/paullyryan/CA675-assignment-1/tree/master/screenshots
+
+File Name - '9 - Store Top 10 Users Posts'
+
 Upon completion, I leave Hive and move to the /top10_user_posts folder. In here we can see the output of my SQL table saved to a file called '000000_0'. I will use this in the next stage of my TF-IDF process. 
 
-Using the below load script, i move these filtered posts into Pig for cleansing before my TF-IDF process.  
+Using the below load script, I moved these filtered posts into Pig for cleansing before my TF-IDF process.  
 
 ```
 /* Load data */
 top10_user_posts = LOAD 'hdfs://assignment-1-m/top10_user_posts/000000_0' AS (userId:int, words:chararray);
 ```
+Output of this query can be found below.
+
+https://github.com/paullyryan/CA675-assignment-1/tree/master/screenshots
+
+File Name - '10 - Store Top 10 Users Output'
 
 At this stage, I encountered difficulty in completing my task. I was able to perform some of the process as per below.
 
@@ -289,3 +337,15 @@ top10_user_posts_pt3 = FOREACH top10_user_posts_pt2 GENERATE GROUP AS users, COU
 /* ORDER BY userId*/
 top10_user_posts_pt4 = ORDER top10_user_posts_pt3 BY users ASC, wordCount DESC;
 ```
+
+Output of my dump can be found below.
+
+https://github.com/paullyryan/CA675-assignment-1/tree/master/screenshots
+
+File Name - '12 - TF-IDF Sample Count & Tokenization Output'
+
+# Learnings
+
+Overall i'm pleased with how the process went. It gave me a great understanding of Pig & Hive, their beneifts and how they interact with each other. 
+
+However there's a number of additional steps that I would've taken in hindsight in order to get a meaningful TF-IDF process completed. It was clear that my data could've been cleaned further as I was unable to get rid of noise (formatting, stop words, stemming). As a result, I would spend more time in Pig working on the cleansing process. 
