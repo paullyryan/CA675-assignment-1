@@ -1,0 +1,39 @@
+
+/* DO THIS SECTION IN HIVE */
+
+/* CREATE A TABLE WITH ALL POSTS BY OUR TOP 10 USERS */
+create external table if not exists top10_user_posts
+(
+userId int
+,body string
+)
+ROW FORMAT DELIMITED
+FIELDS TERMINATED BY '|';
+
+/* INSERT INTO NEWLY CREATED TABLE */
+INSERT INTO top10_user_posts
+SELECT userId, body
+FROM top200_posts
+WHERE userID IN 
+(87234, 4883, 9951, 6068, 89904, 51816, 49153, 95592, 63051, 39677);    // users identified in part 3.ii
+
+/* STORE OUTPUT INTO HDFS */
+INSERT OVERWRITE DIRECTORY '/top10_user_posts' ROW FORMAT DELIMITED FIELDS TERMINATED BY '\t' STORED AS TEXTFILE SELECT * FROM top10_user_posts;
+
+/* DO THIS SECTION IN PIG */
+
+/* LOAD HIVE OUTPUT INTO PIG FOR FURTHER QUERYING */
+
+top10_user_posts = LOAD 'hdfs://assignment-1-m/top10_user_posts/000000_0' AS (userId:int, words:chararray);
+
+/* tokenize my body into individuals words grouped by userId */
+top10_user_posts_pt1 = FOREACH top10_user_posts GENERATE userId, FLATTEN(TOKENIZE(words)) AS word;
+
+/* grouping */
+top10_user_posts_pt2 = GROUP top10_user_posts_pt1 BY (word, userId);
+
+/* count */
+top10_user_posts_pt3 = FOREACH top10_user_posts_pt2 GENERATE GROUP AS users, COUNT(top10_user_posts_pt1) AS wordCount;
+
+/* ORDER BY userId*/
+top10_user_posts_pt4 = ORDER top10_user_posts_pt3 BY users ASC, wordCount DESC;
