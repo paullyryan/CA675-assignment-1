@@ -226,7 +226,9 @@ WHERE BODY LIKE '%Hadoop%';
 
 # Part 4 - TF-IDF
 
-In order to calculate my tf-idf score, I need to gather my dataset. As per above ask, I must perform my TF-IDF analysis on posts made by the top 10 users of the website by score. 
+For the next stage, i followed a scriupt and guide on how to perform this task at the below link. It isn't the exact same process. In the guide, it works off 3 text files. I only have 1 file. Equally, my file will be fed from a Hive output whereby the guide seems to have 3 ready-made text files. So I plan on adjusting the code accordingly to fit my task. 
+
+In order to do thi, I need to gather my dataset. As per above ask, I must perform my TF-IDF analysis on posts made by the top 10 users of the website by score. 
 
 In order to get these users, I'm using Hive again. I will need the userId and body fields. Therefore i'm creating a new table called 'top10_user_posts' which will contain all posts by my top 10 users. 
 
@@ -254,4 +256,36 @@ I will now take my results and store them in the HDFS for my next step. Below is
 
 ```
 INSERT OVERWRITE DIRECTORY '/top10_user_posts' ROW FORMAT DELIMITED FIELDS TERMINATED BY '\t' STORED AS TEXTFILE SELECT * FROM top10_user_posts;
+```
+
+Upon completion, I leave Hive and move to the /top10_user_posts folder. In here we can see the output of my SQL table saved to a file called '000000_0'. I will use this in the next stage of my TF-IDF process. 
+
+Using the below load script, i move these filtered posts into Pig for cleansing before my TF-IDF process.  
+
+```
+/* Load data */
+top10_user_posts = LOAD 'hdfs://assignment-1-m/top10_user_posts/000000_0' AS (userId:int, words:chararray);
+```
+
+At this stage, I encountered difficulty in completing my task. I was able to perform some of the process as per below.
+
+Step 1 - From my data load, tokenize my body field to give a breakdown of each word by userId
+Step 2 - Group step 1 as (word, userId) 
+Step 3 - Take a count of each word by userId so i can see how many times each word was used by a user. 
+Step 4 - Order this output so you can visually see words by userId. 
+
+At step 4, I couldn't figure out exactly how to do this. Combined with time restraints, I had to leave my attempt here and thererfore couldn't complete the TF-IDF task. 
+
+```
+/* tokenize my body into individuals words grouped by userId */
+top10_user_posts_pt1 = FOREACH top10_user_posts GENERATE userId, FLATTEN(TOKENIZE(words)) AS word;
+
+/* grouping */
+top10_user_posts_pt2 = GROUP top10_user_posts_pt1 BY (word, userId);
+
+/* count */
+top10_user_posts_pt3 = FOREACH top10_user_posts_pt2 GENERATE GROUP AS users, COUNT(top10_user_posts_pt1) AS wordCount;
+
+/* ORDER BY userId*/
+top10_user_posts_pt4 = ORDER top10_user_posts_pt3 BY users ASC, wordCount DESC;
 ```
